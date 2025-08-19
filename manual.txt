@@ -1,0 +1,146 @@
+#####################################################
+#Exact Counting of sum and density of States        #
+#Brute Force vs Beyer-Swinehart Algorith of counting#
+#####################################################
+By : Philips Kumar Rai and Aditya Barman
+--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+Note for a reader: This code is not one of the most efficient code in the world. It is intentionally kept simple, so that readers can clearly see how the sum as well as density of 
+state counting works in an RRKM rate calculation. The purpose is to learn the logic by hand (and then through code), not to build a production-level tool. One can add more 
+vibrational modes, optimize the algorithms, or even extend the methods for larger systems.
+-----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+This file demonstrates the calculation of the "sum of states" and the "density of states" 
+for a simple molecule with "two vibrational modes". It shows two methods of "exact counting" of the states:
+1. Brute Force Counting  
+2. Beyer-Swinehart Algorithm
+
+Note:- Both methods give identical results, but the Beyer-Swinehart method is far more efficient for molecules with many vibrational modes.
+
+Let's go through the example:
+
+Vibrational Mode 1: 100 cm-1  
+Vibrational Mode 2: 200 cm-1  
+    Maximum energy: 400 cm-1  
+
+The goal is to compute:  
+Density of states g(E): Number of states at each energy E  
+Cumulative number of states N(E): Total number of states up to energy E [This is roughly the definition of sum of states].
+-----------------------
+1. Brute Force Counting
+-----------------------
+The brute force method is the most direct and simple way to count vibrational states. It works by generating every possible vibrational state one by one and then keeping 
+track of their energies. Although it is very clear and exact, it becomes slow when many vibrational modes are involved.
+
+In our example, we have two vibrational modes:
+Mode 1: E1 = 100 cm-1
+Mode 2: E2 = 200 cm-1
+Maximum allowed energy: Emax = 400 cm-1
+
+By exciting mode 1, mode 2, or both together, the system can build up vibrational energy until it reaches the maximum allowed energy (Emax). 
+The amount of excitation in each mode is measured by quantum numbers n1 and n2 (0, 1, 2, ..). Each unique combination (n1, n2) corresponds to a vibrational state with total energy:
+E = n1 * E1 + n2 * E2. Only those states where E is less than or equal to Emax are kept. The procedure can be understood step by step as follows:
+
+Step 1. Generate all possible combinations
+We start by listing all pairs (n1, n2). For example: (0,0), (1,0), (2,0), (0,1), (1,1), and so on.
+Not all of these pairs are valid. We keep only those pairs where the total energy does not exceed the maximum energy (Emax = 400 cm-1 in the present example). This way, 
+we only count vibrational states that are physically possible within the chosen energy limit.
+
+Step 2. Calculate total energy for each pair
+For each valid pair, we calculate the total vibrational energy using the formula:
+E = n1 * E1 + n2 * E2
+For example:
+For (n1, n2) = (2,0), the energy is E = 2 * 100 + 0 * 200 = 200 cm-1
+For (n1, n2) = (0,2), the energy is E = 0 * 100 + 2 * 200 = 400 cm-1
+This step gives us the actual energy values of all the states.
+
+Step 3. Introduction of energy bins
+Since the goal is to count all states up to a maximum energy (Emax), we must systematically check every possible energy value below Emax. In other words, we need a systematic way 
+to count how many states occur at each energy below or equal to Emax. A convenient way to do this is to divide the energy range into bins. Each bin collects all the states that fall 
+at that energy. Since we are counting all states up to Emax = 400 cm-1, our energy bins will go from 0 to 400. But the next question is: what should be the width of each bin?
+The smallest vibrational step in this system is E1 = 100 cm-1. This means that every possible vibrational energy is a multiple of 100 (0, 100, 200, 300, 400,..).
+So if we were to choose a bin smaller than 100 (like 50 cm-1), most bins would remain empty, because no state can have energy like 50, 150, or 250 cm-1 in our present example.
+Therefore, the natural bin width is 100 cm-1. This way, every bin corresponds exactly to a possible energy value. Finally, our bins are: 0, 100, 200, 300, 400 cm-1.
+
+Step 4. Count the number of states in each bin
+Now, we place each vibrational state into its corresponding energy bin. Then, we count how many states are in each bin.
+For example:
+At E = 200 cm-1, both (2,0) and (0,1) belong here. So the count g(E) = 2
+At E = 300 cm-1, both (3,0) and (1,1) belong here. So g(E) = 2
+This count is called the density of states, g(E). It tells us how many states exist at a particular energy.
+
+Step 5. Compute the cumulative number of states
+Finally, we add up the counts from all bins step by step. This tells us how many states exist up to and including each energy value.
+This running total is called the cumulative number of states, N(E).
+For example: 
+At E = 200 cm-1, we already counted states from E = 0, 100, and 200. So N(E) = 4.
+At E = 400 cm-1, we include all states up to 400. So N(E) = 9.
+
+Here is a final Table illustrating the calculations using brute force counting method.
+ Energy E (cm-1)  Combinations (n1, n2)  g(E)  N(E) cumulative 
+ ---------------  ---------------------  ----  --------------- 
+ 0                (0,0)                  1     1               
+ 100              (1,0)                  1     1 + 1 = 2               
+ 200              (2,0), (0,1)           2     2 + 2 = 4               
+ 300              (3,0), (1,1)           2     4 + 2 = 6               
+ 400              (4,0), (2,1), (0,2)    3     6 + 3 = 9               
+
+Remarks: This way of counting is exact but computationally expensive for larger systems. Every combination must be generated explicitly.
+-----------------------------
+2. Beyer–Swinehart Algorithm
+-----------------------------
+The Beyer-Swinehart algorithm is just another way of counting states, but instead of listing every possible combination of quantum numbers (like brute force), it keeps track of 
+the counts directly in an energy table. Think of it like filling up an array (a list of bins) that tells us how many states exist at each energy, without ever writing down all the 
+(n1, n2) combinations.
+
+Step 1. Make an empty table of energies
+We want to count states up to the maximum energy (Emax = 400 cm-1). So, we create a table (array) with one slot for each energy value we care about:
+states = [0, 0, 0, 0, 0]
+This means:
+states[0] corresponds to energy 0
+states[1] corresponds to energy 100
+states[2] corresponds to energy 200
+states[3] corresponds to energy 300
+states[4] corresponds to energy 400
+At the beginning, we only know that the ground state (E=0) exists, therefore states will be :
+states = [1, 0, 0, 0, 0]
+
+Step 2. Add contributions from the first mode (100 cm-1)
+Now we switch on the first vibrational mode with energy spacing 100 cm-1. The key idea is, at each energy, we just check how many ways we can reach it by adding one quantum of that 
+mode (here 100 cm-1). In simple terms, at each energy, we are asking; can we reach it by adding 100 cm-1 from a lower state? 
+(Remember: only one quantum of 100 cm-1 is added at a time)
+In this way:
+If I add this mode, can I reach this energy?
+At E = 100; we can reach it from E = 0.   So states[1] = states[1] + states[0] = 0 + 1 = 1 
+This simply means that yes we can reach to E = 100 cm-1 if one quantum of 100 cm-1 will be added to E = 0 (ground state).
+At E = 200; we can reach it from E = 100. So states[2] = states[2] + states[1] = 0 + 1 = 1
+Here also, yes we can reach to E = 200 cm-1 if one quantum of 100 cm-1 will be added to E = 100 cm-1.
+At E = 300; we can reach it from E = 200. So states[3] = states[3] + states[2] = 0 + 1 = 1
+At E = 400; we can reach it from E = 300. So states[4] = states[4] + states[3] = 0 + 1 = 1
+Now the table looks like:
+states = [1, 1, 1, 1, 1]
+This means: using only the first mode, there is exactly 1 state at every energy (0, 100, 200, 300, 400).
+
+Step 3. Add contributions from the second mode (200 cm-1)
+Now we include the second mode with energy spacing 200 cm-1.
+We repeat the same logic:
+At E = 200; we can reach it from E = 0.   Add: states[2] = states[2] + states[0] = 1 + 1 = 2.
+Notice: there was already 1 state in the bin for 200 (from the first mode). Adding the new contribution makes it 2. So bins are updated in this way
+At E = 300; we can reach it from E = 100. Add: states[3] = states[3] + states[1] = 1 + 1 = 2.
+At E = 400; we can reach it from E = 200. Add: states[4] = states[4] + states[2] = 1 + 2 = 3
+Final table:
+states = [1, 1, 2, 2, 3]
+
+Step 4. Results
+Now the table directly tells us g(E), the density of states:
+Energy E (cm-1)	g(E) from states[]
+0	1
+100	1
+200	2
+300	2
+400	3
+Then, just like brute force, we can build N(E) (cumulative states) by adding these values step by step.
+
+Remarks:
+Produces exact same results as brute force.  
+Much faster and memory-efficient for large molecules with many vibrational modes.  
+The method can be easily generalized to more modes and higher energies.
+-----------------------------------------------------------------------------------THE END-----------------------------------------------------------------------------------------
