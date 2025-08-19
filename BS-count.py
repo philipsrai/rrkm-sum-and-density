@@ -48,15 +48,15 @@ for f in freq_rc:
 # Frequency = 200 cm-1#
 # f_bin = 200/100 = 2 #
 # ------------------- #
-# i=2  (corresponding to E=400 E=200): N_rc[2] = N_rc[2] + N_rc[0] = 0 + 1 = 1
-# i=3  (corresponding to E=400 E=300): N_rc[3] = N_rc[3] + N_rc[1] = 0 + 0 = 0
-# i=4  (corresponding to E=400 E=400): N_rc[4] = N_rc[4] + N_rc[2] = 0 + 1 = 1
-# i=5  (corresponding to E=400 E=500): N_rc[5] = N_rc[5] + N_rc[3] = 0 + 0 = 0
-# i=6  (corresponding to E=400 E=600): N_rc[6] = N_rc[6] + N_rc[4] = 0 + 1 = 1
-# i=7  (corresponding to E=400 E=700): N_rc[7] = N_rc[7] + N_rc[5] = 0 + 0 = 0
-# i=8  (corresponding to E=400 E=800): N_rc[8] = N_rc[8] + N_rc[6] = 0 + 1 = 1
-# i=9  (corresponding to E=400 E=900): N_rc[9] = N_rc[9] + N_rc[7] = 0 + 0 = 0
-# i=10 (corresponding to E=400 E=1000):N_rc[10]= N_rc[10]+ N_rc[8] = 0 + 1 = 1
+# i=2  (corresponding to E=200): N_rc[2] = N_rc[2] + N_rc[0] = 0 + 1 = 1
+# i=3  (corresponding to E=300): N_rc[3] = N_rc[3] + N_rc[1] = 0 + 0 = 0
+# i=4  (corresponding to E=400): N_rc[4] = N_rc[4] + N_rc[2] = 0 + 1 = 1
+# i=5  (corresponding to E=500): N_rc[5] = N_rc[5] + N_rc[3] = 0 + 0 = 0
+# i=6  (corresponding to E=600): N_rc[6] = N_rc[6] + N_rc[4] = 0 + 1 = 1
+# i=7  (corresponding to E=700): N_rc[7] = N_rc[7] + N_rc[5] = 0 + 0 = 0
+# i=8  (corresponding to E=800): N_rc[8] = N_rc[8] + N_rc[6] = 0 + 1 = 1
+# i=9  (corresponding to E=900): N_rc[9] = N_rc[9] + N_rc[7] = 0 + 0 = 0
+# i=10 (corresponding to E=1000):N_rc[10]= N_rc[10]+ N_rc[8] = 0 + 1 = 1
 # After 200 cm-1 mode: N_rc = [1,0,1,0,1,0,1,0,1,0,1]
 
 # ------------------- #
